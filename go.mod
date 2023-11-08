@@ -1,4 +1,4 @@
-module github.com/snilli/zoos/v1
+module github.com/snilli/zoos
 
 go 1.21.1
 
