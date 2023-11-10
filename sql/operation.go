@@ -5,6 +5,6 @@ import (
 	"strings"
 )
 
-func in(ref ...string) string {
+func in(ref []string) string {
 	return fmt.Sprintf("(%s)", strings.Join(ref, ","))
 }
