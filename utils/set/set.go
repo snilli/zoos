@@ -125,15 +125,3 @@ func (s *AbstractSet[T]) Copy() Set[T] {
 	}
 	return &AbstractSet[T]{m: copyMap}
 }
-
-func main() {
-	a := NewSet[string]()
-	a.Add("ko1")
-	a.Add("ko2")
-	a.Add("ko3")
-	a.Add("ko1")
-	a.Add("ko2")
-	a.Add("ko3")
-	a.Add("ko1")
-
-}

@@ -1,7 +1,5 @@
 package dictionary
 
-import "fmt"
-
 type AbstractDictionary[K comparable, T interface{}] struct {
 	m map[K]T
 }
@@ -67,27 +65,4 @@ func (d *AbstractDictionary[K, T]) Copy() Dictionary[K, T] {
 		copyMap[k] = v
 	}
 	return &AbstractDictionary[K, T]{m: copyMap}
-}
-
-type B struct {
-	V string
-	B string
-}
-type A struct {
-	V Dictionary[string, B]
-}
-
-func v() {
-	a := A{
-		V: NewDictionary[string, B](),
-	}
-	a.V.Set("kook", B{"a", "a"})
-	a.V.Set("kook1", B{"a", "a"})
-	a.V.Set("kook2", B{"a", "a"})
-	a.V.Set("kook3", B{"a", "a"})
-	a.V.Set("kook4", B{"a", "a"})
-	a.V.Set("kook5", B{"a", "a"})
-	for c, b := range *a.V.Keys() {
-		fmt.Println(c, b)
-	}
 }
