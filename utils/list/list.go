@@ -18,7 +18,7 @@ func Merge[T interface{}](chunks [][]T) []T {
 	return list
 }
 
-func Map[T interface{}, E interface{}](data []T, f func(T) E) []E {
+func Map[T, E interface{}](data []T, f func(T) E) []E {
 	mapped := make([]E, len(data))
 	for i, e := range data {
 		mapped[i] = f(e)
@@ -36,4 +36,12 @@ func Filter[T interface{}](data []T, f func(T) bool) []T {
 	}
 
 	return fltd
+}
+
+func Reduce[T, E interface{}](slice []T, initial E, combiner func(E, T, int) E) E {
+	result := initial
+	for index, element := range slice {
+		result = combiner(result, element, index)
+	}
+	return result
 }

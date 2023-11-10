@@ -1,16 +1,30 @@
 package set
 
-type set[T comparable] struct {
+type AbstractSet[T comparable] struct {
 	m map[T]struct{}
 }
 
-func NewSet[T comparable]() *set[T] {
-	return &set[T]{
+type Set[T comparable] interface {
+	Add(value T)
+	Values() []T
+	Contains(value T) bool
+	Remove(value T)
+	Union(other Set[T]) Set[T]
+	Intersection(other Set[T]) Set[T]
+	Difference(other Set[T]) Set[T]
+	SymmetricDifference(other Set[T]) Set[T]
+	IsSubsetOf(other Set[T]) bool
+	IsSupersetOf(other Set[T]) bool
+	Copy() Set[T]
+}
+
+func NewSet[T comparable]() Set[T] {
+	return &AbstractSet[T]{
 		m: make(map[T]struct{}),
 	}
 }
 
-func NewSetWithValues[T comparable](init *[]T) *set[T] {
+func NewSetWithValues[T comparable](init *[]T) Set[T] {
 	s := NewSet[T]()
 	if len(*init) > 0 {
 		for _, value := range *init {
@@ -20,20 +34,20 @@ func NewSetWithValues[T comparable](init *[]T) *set[T] {
 	return s
 }
 
-func (s *set[T]) Add(value T) {
+func (s *AbstractSet[T]) Add(value T) {
 	s.m[value] = struct{}{}
 }
 
-func (s *set[T]) Remove(value T) {
+func (s *AbstractSet[T]) Remove(value T) {
 	delete(s.m, value)
 }
 
-func (s *set[T]) Contains(value T) bool {
+func (s *AbstractSet[T]) Contains(value T) bool {
 	_, c := s.m[value]
 	return c
 }
 
-func (s *set[T]) Get() []T {
+func (s *AbstractSet[T]) Values() []T {
 	var res []T
 	for key := range s.m {
 		res = append(res, key)
@@ -41,54 +55,8 @@ func (s *set[T]) Get() []T {
 	return res
 }
 
-func (s *set[T]) Union(other *set[T]) *set[T] {
-	result := NewSet[T]()
-	for _, value := range s.Get() {
-		result.Add(value)
-	}
-	for _, value := range other.Get() {
-		result.Add(value)
-	}
-	return result
-}
-
-func (s *set[T]) Intersection(other *set[T]) *set[T] {
-	result := NewSet[T]()
-	for _, value := range s.Get() {
-		if other.Contains(value) {
-			result.Add(value)
-		}
-	}
-	return result
-}
-
-func (s *set[T]) Difference(other *set[T]) *set[T] {
-	result := NewSet[T]()
-	for _, value := range s.Get() {
-		if !other.Contains(value) {
-			result.Add(value)
-		}
-	}
-	return result
-}
-
-func (s *set[T]) SymmetricDifference(other *set[T]) *set[T] {
-	result := NewSet[T]()
-	for _, value := range s.Get() {
-		if !other.Contains(value) {
-			result.Add(value)
-		}
-	}
-	for _, value := range other.Get() {
-		if !s.Contains(value) {
-			result.Add(value)
-		}
-	}
-	return result
-}
-
-func (s *set[T]) IsSubsetOf(other *set[T]) bool {
-	for _, value := range s.Get() {
+func (s *AbstractSet[T]) IsSubsetOf(other Set[T]) bool {
+	for _, value := range s.Values() {
 		if !other.Contains(value) {
 			return false
 		}
@@ -96,6 +64,76 @@ func (s *set[T]) IsSubsetOf(other *set[T]) bool {
 	return true
 }
 
-func (s *set[T]) IsSupersetOf(other *set[T]) bool {
+func (s *AbstractSet[T]) IsSupersetOf(other Set[T]) bool {
 	return other.IsSubsetOf(s)
+}
+
+func (s *AbstractSet[T]) Union(other Set[T]) Set[T] {
+	result := NewSet[T]()
+	for _, value := range s.Values() {
+		result.Add(value)
+	}
+	for _, value := range other.Values() {
+		result.Add(value)
+	}
+	return result
+}
+
+func (s *AbstractSet[T]) Intersection(other Set[T]) Set[T] {
+	result := NewSet[T]()
+	for _, value := range s.Values() {
+		if other.Contains(value) {
+			result.Add(value)
+		}
+	}
+	return result
+}
+
+func (s *AbstractSet[T]) Difference(other Set[T]) Set[T] {
+	result := NewSet[T]()
+	for _, value := range s.Values() {
+		if !other.Contains(value) {
+			result.Add(value)
+		}
+	}
+	return result
+}
+
+func (s *AbstractSet[T]) SymmetricDifference(other Set[T]) Set[T] {
+	diff1 := s.Difference(other)
+	diff2 := other.Difference(s)
+	return diff1.Union(diff2)
+}
+
+func (s *AbstractSet[T]) IsSubset(other Set[T]) bool {
+	for _, value := range s.Values() {
+		if !other.Contains(value) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *AbstractSet[T]) IsSuperset(other Set[T]) bool {
+	return other.IsSubsetOf(s)
+}
+
+func (s *AbstractSet[T]) Copy() Set[T] {
+	copyMap := make(map[T]struct{}, len(s.m))
+	for key := range s.m {
+		copyMap[key] = struct{}{}
+	}
+	return &AbstractSet[T]{m: copyMap}
+}
+
+func main() {
+	a := NewSet[string]()
+	a.Add("ko1")
+	a.Add("ko2")
+	a.Add("ko3")
+	a.Add("ko1")
+	a.Add("ko2")
+	a.Add("ko3")
+	a.Add("ko1")
+
 }
