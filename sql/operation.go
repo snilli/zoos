@@ -6,5 +6,5 @@ import (
 )
 
 func in(ref ...string) string {
-	return fmt.Sprintf("(%s)", strings.Join(a, ","))
+	return fmt.Sprintf("(%s)", strings.Join(ref, ","))
 }
