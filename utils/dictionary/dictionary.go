@@ -5,12 +5,12 @@ type AbstractDictionary[K comparable, T interface{}] struct {
 }
 
 type Dictionary[K comparable, T interface{}] interface {
-	Get(key K) (T, bool)
+	Get(key K) (*T, bool)
 	Set(key K, value T)
 	Contains(key K) bool
 	Remove(key K)
-	Keys() *[]K
-	Values() *[]T
+	Keys() []K
+	Values() []T
 	Entries() map[K]T
 	Copy() Dictionary[K, T]
 }
@@ -21,9 +21,9 @@ func NewDictionary[K comparable, T interface{}]() Dictionary[K, T] {
 	}
 }
 
-func (d *AbstractDictionary[K, T]) Get(key K) (T, bool) {
+func (d *AbstractDictionary[K, T]) Get(key K) (*T, bool) {
 	val, ok := d.m[key]
-	return val, ok
+	return &val, ok
 }
 
 func (d *AbstractDictionary[K, T]) Set(key K, value T) {
@@ -39,20 +39,20 @@ func (d *AbstractDictionary[K, T]) Remove(key K) {
 	delete(d.m, key)
 }
 
-func (d *AbstractDictionary[K, T]) Keys() *[]K {
+func (d *AbstractDictionary[K, T]) Keys() []K {
 	var keys []K
 	for key := range d.m {
 		keys = append(keys, key)
 	}
-	return &keys
+	return keys
 }
 
-func (d *AbstractDictionary[K, T]) Values() *[]T {
+func (d *AbstractDictionary[K, T]) Values() []T {
 	var values []T
 	for _, value := range d.m {
 		values = append(values, value)
 	}
-	return &values
+	return values
 }
 
 func (d *AbstractDictionary[K, T]) Entries() map[K]T {
