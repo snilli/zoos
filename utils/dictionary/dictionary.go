@@ -5,7 +5,7 @@ type AbstractDictionary[K comparable, T interface{}] struct {
 }
 
 type Dictionary[K comparable, T interface{}] interface {
-	Get(key K) (*T, bool)
+	Get(key K) (T, bool)
 	Set(key K, value T)
 	Contains(key K) bool
 	Remove(key K)
@@ -21,9 +21,9 @@ func NewDictionary[K comparable, T interface{}]() Dictionary[K, T] {
 	}
 }
 
-func (d *AbstractDictionary[K, T]) Get(key K) (*T, bool) {
+func (d *AbstractDictionary[K, T]) Get(key K) (T, bool) {
 	val, ok := d.m[key]
-	return &val, ok
+	return val, ok
 }
 
 func (d *AbstractDictionary[K, T]) Set(key K, value T) {
