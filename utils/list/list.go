@@ -18,24 +18,44 @@ func Merge[T interface{}](chunks [][]T) []T {
 	return list
 }
 
-func Map[T, E interface{}](data []T, f func(T) E) []E {
+func Map[T, E interface{}](data []T, f func(slice T, i int) E) []E {
 	mapped := make([]E, len(data))
 	for i, e := range data {
-		mapped[i] = f(e)
+		mapped[i] = f(e, i)
 	}
 
 	return mapped
 }
 
-func Filter[T interface{}](data []T, f func(T) bool) []T {
+func Filter[T interface{}](data []T, f func(slice T, i int) bool) []T {
 	fltd := make([]T, 0, len(data))
-	for _, e := range data {
-		if f(e) {
+	for i, e := range data {
+		if f(e, i) {
 			fltd = append(fltd, e)
 		}
 	}
 
 	return fltd
+}
+
+func Find[T interface{}](data []T, f func(slice T, i int) bool) bool {
+	for i, e := range data {
+		if f(e, i) {
+			return true
+		}
+	}
+
+	return false
+}
+
+func IndexOf[T interface{}](data []T, f func(slice T, i int) bool) int {
+	for i, e := range data {
+		if f(e, i) {
+			return i
+		}
+	}
+
+	return -1
 }
 
 func Reduce[T, E interface{}](slice []T, initial E, combiner func(E, T, int) E) E {

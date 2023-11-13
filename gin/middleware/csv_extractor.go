@@ -10,9 +10,9 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
-func CsvParserMiddleware[T interface{}](fieldNmae string) gin.HandlerFunc {
+func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fileBin, getFileErr := c.FormFile(fieldNmae)
+		fileBin, getFileErr := c.FormFile(formDataFieldName)
 		if getFileErr != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": getFileErr.Error()})
 			c.Abort()

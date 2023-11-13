@@ -18,20 +18,15 @@ type Set[T comparable] interface {
 	Copy() Set[T]
 }
 
-func NewSet[T comparable]() Set[T] {
+func NewSet[T comparable](init []T) Set[T] {
+	s := make(map[T]struct{})
+	for _, value := range init {
+		s[value] = struct{}{}
+	}
+
 	return &AbstractSet[T]{
 		m: make(map[T]struct{}),
 	}
-}
-
-func NewSetWithValues[T comparable](init *[]T) Set[T] {
-	s := NewSet[T]()
-	if len(*init) > 0 {
-		for _, value := range *init {
-			s.Add(value)
-		}
-	}
-	return s
 }
 
 func (s *AbstractSet[T]) Add(value T) {
@@ -69,7 +64,7 @@ func (s *AbstractSet[T]) IsSupersetOf(other Set[T]) bool {
 }
 
 func (s *AbstractSet[T]) Union(other Set[T]) Set[T] {
-	result := NewSet[T]()
+	result := NewSet[T](nil)
 	for _, value := range s.Values() {
 		result.Add(value)
 	}
@@ -80,7 +75,7 @@ func (s *AbstractSet[T]) Union(other Set[T]) Set[T] {
 }
 
 func (s *AbstractSet[T]) Intersection(other Set[T]) Set[T] {
-	result := NewSet[T]()
+	result := NewSet[T](nil)
 	for _, value := range s.Values() {
 		if other.Contains(value) {
 			result.Add(value)
@@ -90,7 +85,7 @@ func (s *AbstractSet[T]) Intersection(other Set[T]) Set[T] {
 }
 
 func (s *AbstractSet[T]) Difference(other Set[T]) Set[T] {
-	result := NewSet[T]()
+	result := NewSet[T](nil)
 	for _, value := range s.Values() {
 		if !other.Contains(value) {
 			result.Add(value)
