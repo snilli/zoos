@@ -1,7 +1,16 @@
 package dictionary
 
+import (
+	"sort"
+)
+
 type AbstractDictionary[K comparable, T interface{}] struct {
 	m map[K]T
+}
+
+type DictionaryEntry[K comparable, T interface{}] struct {
+	K K
+	V T
 }
 
 type Dictionary[K comparable, T interface{}] interface {
@@ -11,7 +20,7 @@ type Dictionary[K comparable, T interface{}] interface {
 	Remove(key K)
 	Keys() []K
 	Values() []T
-	Entries() map[K]T
+	Entries() []DictionaryEntry[K, T]
 	Copy() Dictionary[K, T]
 }
 
@@ -41,22 +50,24 @@ func (d *AbstractDictionary[K, T]) Remove(key K) {
 
 func (d *AbstractDictionary[K, T]) Keys() []K {
 	var keys []K
-	for key := range d.m {
-		keys = append(keys, key)
+	entries := d.sort()
+	for _, entry := range entries {
+		keys = append(keys, entry.K)
 	}
 	return keys
 }
 
 func (d *AbstractDictionary[K, T]) Values() []T {
 	var values []T
-	for _, value := range d.m {
-		values = append(values, value)
+	entries := d.sort()
+	for _, entry := range entries {
+		values = append(values, entry.V)
 	}
 	return values
 }
 
-func (d *AbstractDictionary[K, T]) Entries() map[K]T {
-	return d.m
+func (d *AbstractDictionary[K, T]) Entries() []DictionaryEntry[K, T] {
+	return d.sort()
 }
 
 func (d *AbstractDictionary[K, T]) Copy() Dictionary[K, T] {
@@ -64,5 +75,38 @@ func (d *AbstractDictionary[K, T]) Copy() Dictionary[K, T] {
 	for k, v := range d.m {
 		copyMap[k] = v
 	}
+
 	return &AbstractDictionary[K, T]{m: copyMap}
+}
+
+func (d *AbstractDictionary[K, T]) sort() []DictionaryEntry[K, T] {
+	var keys []interface{}
+	for key := range d.m {
+		keys = append(keys, key)
+	}
+
+	d.sortKeys(keys)
+
+	res := []DictionaryEntry[K, T]{}
+
+	for _, key := range keys {
+		value := d.m[key.(K)]
+		res = append(res, DictionaryEntry[K, T]{K: key.(K), V: value})
+	}
+
+	return res
+}
+
+func (d *AbstractDictionary[K, T]) sortKeys(keys []interface{}) {
+	sort.Slice(keys, func(i, j int) bool {
+		switch keys[i].(type) {
+		case int:
+			return keys[i].(int) < keys[j].(int)
+		case string:
+			return keys[i].(string) < keys[j].(string)
+		default:
+			// Handle other types as needed
+			return false
+		}
+	})
 }
