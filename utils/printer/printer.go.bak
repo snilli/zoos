@@ -1,0 +1,54 @@
+package printer
+
+import (
+	"encoding/json"
+	"fmt"
+	"log"
+	"strings"
+	"time"
+)
+
+func PrettyPrint(item interface{}) {
+	json, err := json.MarshalIndent(item, "", "  ")
+	if err != nil {
+		log.Fatalf(err.Error())
+	}
+
+	fmt.Println(time.Now().String(), "  :  ", string(json))
+}
+
+type Printer interface {
+	Print() string
+	// WithMessage(m string)
+	// WithSpace()
+	// StartColor(c string)
+	// EndColor()
+}
+
+type AbstractPrinter struct {
+	funcs []func() string
+}
+
+func NewPrinter() Printer {
+	return &AbstractPrinter{}
+}
+
+func (p *AbstractPrinter) Print() string {
+	res := []string{}
+	for _, f := range p.funcs {
+		res = append(res, f())
+	}
+
+	return strings.Join(res, " ")
+}
+
+func main() {
+	a := NewPrinter()
+	a.WithMessage("kokokok")
+	a.WithMessage("asdasd")
+	a.WithMessage("kokokok")
+	a.WithMessage("kokasdokok")
+	a.WithSpace()
+
+	a.Print()
+}
