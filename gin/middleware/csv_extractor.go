@@ -13,14 +13,14 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 	return func(c *gin.Context) {
 		fileBin, getFileErr := c.FormFile(formDataFieldName)
 		if getFileErr != nil {
-			c.Set("csv.error", getFileErr)
+			c.Set("csv.error", getFileErr.Error())
 			c.Next()
 			return
 		}
 
 		file, openFileBinErr := fileBin.Open()
 		if openFileBinErr != nil {
-			c.Set("csv.error", openFileBinErr)
+			c.Set("csv.error", openFileBinErr.Error())
 			c.Next()
 			return
 		}
@@ -29,7 +29,7 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 		reader := csv.NewReader(file)
 		columns, readColErr := reader.Read()
 		if readColErr != nil {
-			c.Set("csv.error", readColErr)
+			c.Set("csv.error", readColErr.Error())
 			c.Next()
 			return
 		}
@@ -42,7 +42,7 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 			if err == io.EOF {
 				break
 			} else if err != nil {
-				c.Set("csv.error", err)
+				c.Set("csv.error", err.Error())
 				c.Next()
 				return
 			}
@@ -54,13 +54,13 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 
 			var data T
 			if err := mapstructure.Decode(row, &data); err != nil {
-				c.Set("csv.error", err)
+				c.Set("csv.error", err.Error())
 				c.Next()
 				return
 			}
 
 			if err := v.Struct(&data); err != nil {
-				c.Set("csv.error", err)
+				c.Set("csv.error", err.Error())
 				c.Next()
 				return
 			}
