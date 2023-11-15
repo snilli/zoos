@@ -3,7 +3,6 @@ package middleware
 import (
 	"encoding/csv"
 	"io"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator"
@@ -14,15 +13,15 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 	return func(c *gin.Context) {
 		fileBin, getFileErr := c.FormFile(formDataFieldName)
 		if getFileErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": getFileErr.Error()})
-			c.Abort()
+			c.Set("csv.error", gin.H{"error": getFileErr.Error()})
+			c.Next()
 			return
 		}
 
 		file, openFileBinErr := fileBin.Open()
 		if openFileBinErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": openFileBinErr.Error()})
-			c.Abort()
+			c.Set("csv.error", gin.H{"error": openFileBinErr.Error()})
+			c.Next()
 			return
 		}
 		defer file.Close()
@@ -30,8 +29,8 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 		reader := csv.NewReader(file)
 		columns, readColErr := reader.Read()
 		if readColErr != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": readColErr.Error()})
-			c.Abort()
+			c.Set("csv.error", gin.H{"error": readColErr.Error()})
+			c.Next()
 			return
 		}
 
@@ -43,8 +42,8 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 			if err == io.EOF {
 				break
 			} else if err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				c.Abort()
+				c.Set("csv.error", gin.H{"error": err.Error()})
+				c.Next()
 				return
 			}
 
@@ -55,14 +54,14 @@ func CsvParserMiddleware[T interface{}](formDataFieldName string, shape T) gin.H
 
 			var data T
 			if err := mapstructure.Decode(row, &data); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				c.Abort()
+				c.Set("csv.error", gin.H{"error": err.Error()})
+				c.Next()
 				return
 			}
 
 			if err := v.Struct(&data); err != nil {
-				c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-				c.Abort()
+				c.Set("csv.error", gin.H{"error": err.Error()})
+				c.Next()
 				return
 			}
 
