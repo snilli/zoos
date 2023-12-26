@@ -16,6 +16,7 @@ type Set[T comparable] interface {
 	IsSubsetOf(other Set[T]) bool
 	IsSupersetOf(other Set[T]) bool
 	Copy() Set[T]
+	Length() int
 }
 
 func NewSet[T comparable](init []T) Set[T] {
@@ -61,6 +62,10 @@ func (s *AbstractSet[T]) IsSubsetOf(other Set[T]) bool {
 
 func (s *AbstractSet[T]) IsSupersetOf(other Set[T]) bool {
 	return other.IsSubsetOf(s)
+}
+
+func (s *AbstractSet[T]) Length() int {
+	return len(s.m)
 }
 
 func (s *AbstractSet[T]) Union(other Set[T]) Set[T] {

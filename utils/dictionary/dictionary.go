@@ -22,6 +22,7 @@ type Dictionary[K comparable, T interface{}] interface {
 	Values() []T
 	Entries() []DictionaryEntry[K, T]
 	Copy() Dictionary[K, T]
+	Length() int
 }
 
 func NewDictionary[K comparable, T interface{}]() Dictionary[K, T] {
@@ -37,6 +38,10 @@ func (d *AbstractDictionary[K, T]) Get(key K) (T, bool) {
 
 func (d *AbstractDictionary[K, T]) Set(key K, value T) {
 	d.m[key] = value
+}
+
+func (d *AbstractDictionary[K, T]) Length() int {
+	return len(d.m)
 }
 
 func (d *AbstractDictionary[K, T]) Contains(key K) bool {
